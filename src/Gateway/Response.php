@@ -10,10 +10,92 @@ class Response
         $this->db = $db;
     }
 
-    public function insertResponseForTest(Array $input)
+    public function getResponseForTest($userId, $testId)
     {
-        $inserted_id = 0;
+        $responseId = $this->getResponseId($userId, $testId);
 
+        if ($responseId !== 0)
+        {
+            $statement = "
+                SELECT
+                    *
+                FROM
+                    `answers`
+                WHERE
+                    `response_id`=:response_id;
+            ";
+
+            return $this->executeQuery($statement, array(
+                'response_id' => $responseId
+            ))->fetchAll(\PDO::FETCH_ASSOC);
+        }
+    }
+
+    private function getResponseId($userId, $testId)
+    {
+        $statement = "
+            SELECT
+                `response_id`
+            FROM
+                `response`
+            WHERE
+                user_id=:user_id AND test_id=:test_id;
+        ";
+
+        $result = $this->executeQuery($statement, array(
+            'user_id' => $userId,
+            'test_id' => $testId
+        ))->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (isset($result) && isset($result[0]))
+        {
+            return $result[0]['response_id'];
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public function insertResponseForTest($userId, $testId, Array $answers)
+    {
+        $insertedId = $this->getResponseId($userId, $testId);
+
+        if ($insertedId === 0)
+        {
+            return $this->insertRecord($userId, $testId, $answers);
+        }
+        else
+        {
+            return $this->updateRecord($insertedId, $answers);
+        }
+
+    }
+
+    private function updateRecord($responseId, $answers)
+    {
+        $statement = "
+            UPDATE `answers`
+            SET
+                answer=:answer
+            WHERE
+                response_id=:response_id
+            AND
+                question_id=:question_id;
+        ";
+
+        foreach ($answers as $answer)
+        {
+            $this->executeQuery($statement, array(
+                'response_id' => $responseId,
+                'question_id' => $answer['question_id'],
+                'answer' => $answer['answer']
+            ));
+        }
+    }
+
+    private function insertRecord($userId, $testId, Array $answers)
+    {
         $statement = "
             INSERT INTO `response`
                 (`user_id`, `test_id`)
@@ -21,19 +103,11 @@ class Response
                 (:user_id, :test_id);
         ";
 
-        try
-        {
-            $statement = $this->db->prepare($statement);
-            $statement->execute(array(
-                'user_id' => $input['user_id'],
-                'test_id' => $input['test_id']
-            ));
-            $inserted_id = $this->db->lastInsertId();
-        }
-        catch(\PDOException $e)
-        {
-            exit($e->getMessage());
-        }
+        $this->executeQuery($statement, array(
+            'user_id' => $userId,
+            'test_id' => $testId
+        ));
+        $insertedId = $this->db->lastInsertId();
 
         $statement = "
             INSERT INTO `answers`
@@ -42,70 +116,23 @@ class Response
                 (:response_id, :question_id, :answer);
         ";
 
-        $statement = $this->db->prepare($statement);
-
-        $answers = $input['answers'];
         foreach ($answers as $answer)
         {
-            try
-            {
-                $statement->execute(array(
-                    'response_id' => $inserted_id,
-                    'question_id' => $answer['question_id'],
-                    'answer' => $answer['answer']
-                ));
-            }
-            catch(\PDOException $e)
-            {
-                exit($e->getMessage());
-            }
+            $this->executeQuery($statement, array(
+                'response_id' => $insertedId,
+                'question_id' => $answer['question_id'],
+                'answer' => $answer['answer']
+            ));
         }
     }
 
-    public function getResponseForTest($user_id, $test_id)
+    private function executeQuery($query, $args)
     {
-        $response_id = 0;
-
-        $statement = "
-            SELECT
-                `response_id`
-            FROM
-                `response`
-            WHERE
-                `user_id`='$user_id' AND `test_id`=$test_id;
-        ";
-
         try
         {
-            $statement = $this->db->query($statement);
-            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-            if (isset($result) && isset($result[0]))
-            {
-                $response_id = $result[0]['response_id'];
-            }
-            else
-            {
-                return 0;
-            }
-        }
-        catch(\PDOException $e)
-        {
-            exit($e->getMessage());
-        }
-
-        $statement = "
-            SELECT
-                *
-            FROM
-                `answers`
-            WHERE
-                `response_id`=$response_id;
-        ";
-
-        try
-        {
-            $statement = $this->db->query($statement);
-            return $this->db->fetchAll(\PDO::FETCH_ASSOC);
+            $statement = $this->db->prepare($query);
+            $statement->execute($args);
+            return $statement;
         }
         catch(\PDOException $e)
         {
@@ -113,5 +140,3 @@ class Response
         }
     }
 }
-
-?>

@@ -13,16 +13,20 @@ class Questions
     public function getQuestionsForTest($testId)
     {
         $statement = "
-            SELECT 
+            SELECT
                 *
             FROM
                 `questions`
-            WHERE `test_id` = $testId;
+            WHERE `test_id` = :test_id
+            ORDER BY `question_id` DESC;
         ";
 
         try
         {
-            $statement = $this->db->query($statement);
+            $statement = $this->db->prepare($statement);
+            $statement->execute(array(
+                'test_id' => $testId
+            ));
             return $statement->fetchAll(\PDO::FETCH_ASSOC);
         }
         catch(\PDOException $e)
@@ -31,5 +35,3 @@ class Questions
         }
     }
 }
-
-?>

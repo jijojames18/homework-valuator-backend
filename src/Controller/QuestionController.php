@@ -1,6 +1,7 @@
 <?php
 namespace Controller;
-use Gateway/Questions;
+
+use Gateway\Questions;
 
 class QuestionController
 {
@@ -27,34 +28,15 @@ class QuestionController
         {
             case 'GET':
                 $result = $this->questions->getQuestionsForTest($this->testId);
-                if (isset($result))
+                if (isset($result) && !empty($result))
                 {
-                    $response = (
-                        'status_code_header' => 'HTTP/1.1 200 OK',
-                        'body' => $result
-                    );
+                    header('HTTP/1.1 200 OK');
+                    echo json_encode($result);
+                    break;
                 }
-                else
-                {
-                    $response = (
-                        'status_code_header' => 'HTTP/1.1 404 Not Found',
-                        'body' => null
-                    );
-                }
-            break;
             default:
-                $response = (
-                    'status_code_header' => 'HTTP/1.1 404 Not Found',
-                    'body' => null
-                );
+                header('HTTP/1.1 404 Not Found');
             break;
-        }
-
-        header($response['status_code_header']);
-        if ($response['body'])
-        {
-            echo $response['body'];
         }
     }
 }
-

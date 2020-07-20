@@ -1,10 +1,10 @@
 <?php
 namespace Controller;
-use Gateway/Response;
+
+use Gateway\Response;
 
 class AnswerController
 {
-
     private $db = null;
     private $requestMethod = null;
     private $userId = null;
@@ -27,44 +27,20 @@ class AnswerController
 
         switch ($this->requestMethod)
         {
+            case 'POST':
+                $result = $this->response->insertResponseForTest($this->userId, $this->testId, json_decode($_POST['answers'], true));
+                header('HTTP/1.1 201 CREATED');
+            break;
             case 'GET':
                 $result = $this->response->getResponseForTest($this->userId, $this->testId);
-                if (isset($result))
+                if (isset($result) && !empty($result))
                 {
-                    $response = (
-                        'status_code_header' => 'HTTP/1.1 200 OK',
-                        'body' => $result
-                    );
+                    header('HTTP/1.1 200 OK');
+                    echo json_encode($result);
+                    break;
                 }
-                else
-                {
-                    $response = (
-                        'status_code_header' => 'HTTP/1.1 404 Not Found',
-                        'body' => null
-                    );
-                }
-            break;
-            case 'POST':
-                $input = (array) json_decode(file_get_contents('php://input'), TRUE);
-                $result = $this->response->getQuestionsForTest($input);
-                $response = (
-                    'status_code_header' => 'HTTP/1.1 201 CREATED',
-                    'body' => null
-                );
-            break;
             default:
-                $response = (
-                    'status_code_header' => 'HTTP/1.1 404 Not Found',
-                    'body' => null
-                );
-            break;
-        }
-
-        header($response['status_code_header']);
-        if ($response['body'])
-        {
-            echo $response['body'];
+                header('HTTP/1.1 404 Not Found');
         }
     }
 }
-
