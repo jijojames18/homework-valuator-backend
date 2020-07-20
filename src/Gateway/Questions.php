@@ -1,14 +1,17 @@
 <?php
 namespace Gateway;
 
-class Questions {
+class Questions
+{
     private $db = null;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->db = $db;
     }
 
-    public function getQuestionsForTest($testId) {
+    public function getQuestionsForTest($testId)
+    {
         $statement = "
             SELECT 
                 *
@@ -17,14 +20,16 @@ class Questions {
             WHERE `test_id` = $testId;
         ";
 
-        try {
+        try
+        {
             $statement = $this->db->query($statement);
             return $statement->fetchAll(\PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
+        }
+        catch(\PDOException $e)
+        {
             exit($e->getMessage());
         }
     }
 }
-
 
 ?>

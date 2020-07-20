@@ -1,15 +1,17 @@
 <?php
 namespace Gateway;
 
-class Questions {    
-    
+class Response
+{
     private $db = null;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->db = $db;
     }
 
-    public function insertResponseForTest(Array $input) {
+    public function insertResponseForTest(Array $input)
+    {
         $inserted_id = 0;
 
         $statement = "
@@ -19,14 +21,17 @@ class Questions {
                 (:user_id, :test_id);
         ";
 
-        try {
+        try
+        {
             $statement = $this->db->prepare($statement);
             $statement->execute(array(
                 'user_id' => $input['user_id'],
-                'test_id'  => $input['test_id']
+                'test_id' => $input['test_id']
             ));
             $inserted_id = $this->db->lastInsertId();
-        } catch (\PDOException $e) {
+        }
+        catch(\PDOException $e)
+        {
             exit($e->getMessage());
         }
 
@@ -40,20 +45,25 @@ class Questions {
         $statement = $this->db->prepare($statement);
 
         $answers = $input['answers'];
-        foreach ($answers as $answer) {
-            try {
+        foreach ($answers as $answer)
+        {
+            try
+            {
                 $statement->execute(array(
                     'response_id' => $inserted_id,
                     'question_id' => $answer['question_id'],
                     'answer' => $answer['answer']
                 ));
-            } catch (\PDOException $e) {
+            }
+            catch(\PDOException $e)
+            {
                 exit($e->getMessage());
             }
         }
     }
 
-    public function getResponseForTest($user_id, $test_id) {
+    public function getResponseForTest($user_id, $test_id)
+    {
         $response_id = 0;
 
         $statement = "
@@ -65,16 +75,21 @@ class Questions {
                 `user_id`='$user_id' AND `test_id`=$test_id;
         ";
 
-        try {
+        try
+        {
             $statement = $this->db->query($statement);
             $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-            if (isset($result) && isset($result[0])) {
+            if (isset($result) && isset($result[0]))
+            {
                 $response_id = $result[0]['response_id'];
             }
-            else {
+            else
+            {
                 return 0;
             }
-        } catch (\PDOException $e) {
+        }
+        catch(\PDOException $e)
+        {
             exit($e->getMessage());
         }
 
@@ -87,10 +102,13 @@ class Questions {
                 `response_id`=$response_id;
         ";
 
-        try {
+        try
+        {
             $statement = $this->db->query($statement);
-            return $ths->db->fetchAll(\PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
+            return $this->db->fetchAll(\PDO::FETCH_ASSOC);
+        }
+        catch(\PDOException $e)
+        {
             exit($e->getMessage());
         }
     }
