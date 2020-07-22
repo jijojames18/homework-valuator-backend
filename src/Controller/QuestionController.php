@@ -26,6 +26,21 @@ class QuestionController
 
         switch ($this->requestMethod)
         {
+            case 'OPTIONS':
+                 if (
+                    isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']) &&
+                    $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] == 'GET' &&
+                    isset($_SERVER['HTTP_ORIGIN']) &&
+                    is_approved($_SERVER['HTTP_ORIGIN'])
+                )
+                {
+                    header('HTTP/1.1 200 OK');
+                }
+                else
+                {
+                    header('HTTP/1.1 404 Not Found');
+                }
+                break;
             case 'GET':
                 $result = $this->questions->getQuestionsForTest($this->testId);
                 if (isset($result) && !empty($result))

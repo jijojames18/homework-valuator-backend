@@ -31,6 +31,21 @@ class AnswerController
                 $result = $this->response->insertResponseForTest($this->userId, $this->testId, json_decode($_POST['answers'], true));
                 header('HTTP/1.1 201 CREATED');
             break;
+            case 'OPTIONS':
+                 if (
+                    isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']) &&
+                    ($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] == 'GET' || $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] == 'POST')  &&
+                    isset($_SERVER['HTTP_ORIGIN']) &&
+                    is_approved($_SERVER['HTTP_ORIGIN'])
+                )
+                {
+                    header('HTTP/1.1 200 OK');
+                }
+                else
+                {
+                    header('HTTP/1.1 404 Not Found');
+                }
+                break;
             case 'GET':
                 $result = $this->response->getResponseForTest($this->userId, $this->testId);
                 if (isset($result) && !empty($result))
