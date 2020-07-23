@@ -4,10 +4,12 @@ namespace Gateway;
 class Response
 {
     private $db = null;
+    private $questions = null;
 
-    public function __construct($db)
+    public function __construct($db, $questions)
     {
         $this->db = $db;
+        $this->questions = $questions;
     }
 
     public function getResponseForTest($userId, $testId)
@@ -59,17 +61,31 @@ class Response
 
     public function insertResponseForTest($userId, $testId, Array $answers)
     {
+        $test = $this->questions->getTestDetails($testId);
+        if (!isset($test) || empty($test))
+        {
+            return -1;
+        }
+
+        $testEndTime = $test[0]['test_end_time'];
+
+        if (strtotime(date("Y-m-d H:i:s", time())) > strtotime($testEndTime))
+        {
+            return -2;
+        }
+
         $insertedId = $this->getResponseId($userId, $testId);
 
         if ($insertedId === 0)
         {
-            return $this->insertRecord($userId, $testId, $answers);
+            $this->insertRecord($userId, $testId, $answers);
         }
         else
         {
-            return $this->updateRecord($insertedId, $answers);
+            $this->updateRecord($insertedId, $answers);
         }
 
+        return 0;
     }
 
     private function updateRecord($responseId, $answers)

@@ -1,6 +1,6 @@
 <?php
-require 'bootstrap.php';
 require 'autoload.php';
+require 'bootstrap.php';
 
 use Database\DatabaseConnector;
 
