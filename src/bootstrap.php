@@ -1,5 +1,10 @@
 <?php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'test');
-define('DB_USER', 'root');
-define('DB_PASSWORD', '');
+use Dotenv\Dotenv;
+
+$dotenv = new Dotenv(__DIR__.'/../../');
+$dotenv->load();
+
+define('DB_HOST', getenv('DB_HOST'));
+define('DB_NAME', getenv('DB_NAME'));
+define('DB_USER', getenv('DB_USER'));
+define('DB_PASSWORD', getenv('DB_PASSWORD'));
