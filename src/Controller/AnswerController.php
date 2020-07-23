@@ -2,6 +2,7 @@
 namespace Controller;
 
 use Gateway\Response;
+use Gateway\Questions;
 
 class AnswerController
 {
@@ -18,7 +19,8 @@ class AnswerController
         $this->userId = $userId;
         $this->testId = $testId;
 
-        $this->response = new Response($db);
+        $questions = new Questions($db);
+        $this->response = new Response($db, $questions);
     }
 
     public function processRequest()
@@ -29,6 +31,9 @@ class AnswerController
         {
             case 'POST':
                 $result = $this->response->insertResponseForTest($this->userId, $this->testId, json_decode($_POST['answers'], true));
+                echo json_encode(array(
+                    'result' => $result
+                ));
                 header('HTTP/1.1 201 CREATED');
             break;
             case 'OPTIONS':
