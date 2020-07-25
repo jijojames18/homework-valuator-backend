@@ -1,8 +1,11 @@
 <?php
 use Dotenv\Dotenv;
 
-$dotenv = new Dotenv(__DIR__.'/../../');
-$dotenv->load();
+if (getenv('APP_ENV') !== 'production')
+{
+    $dotenv = new Dotenv(__DIR__.'/../../');
+    $dotenv->load();
+}
 
 define('DB_HOST', getenv('DB_HOST'));
 define('DB_NAME', getenv('DB_NAME'));
