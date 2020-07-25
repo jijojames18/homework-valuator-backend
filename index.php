@@ -13,27 +13,24 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = explode('/', $uri);
 $requestMethod = $_SERVER['REQUEST_METHOD'];
-$controllerMethod = $uri[3];
 
-if ($controllerMethod === 'questions')
+$uriSize = sizeof($uri);
+
+$questionIndex = array_search("questions", $uri);
+$isQuestionRequest = $questionIndex !== null && $questionIndex === ($uriSize - 2);
+
+$answerIndex = array_search("answers", $uri);
+$isAnswerRequest = $answerIndex !== null && $answerIndex === ($uriSize - 3);
+
+if ($isQuestionRequest)
 {
-    $controller = (new QuestionController($dbConnection, $requestMethod, $uri[4]))->processRequest();
+    $testId = $uri[$uriSize - 1];
+    $controller = (new QuestionController($dbConnection, $requestMethod, $uri[3]))->processRequest();
 }
-else if ($controllerMethod === 'answers')
+else if ($isAnswerRequest)
 {
-	$testId = null;
-	$userId = null;
-
-	if (isset($uri[4]))
-	{
-	    $testId = (int) $uri[4];
-	}
-
-	if (isset($uri[5]))
-	{
-	    $userId = $uri[5];
-	}
-
+    $testId = (int) $uri[$uriSize - 2];
+    $userId = (int) $uri[$uriSize - 1];
     $controller = (new AnswerController($dbConnection, $requestMethod, $userId, $testId))->processRequest();
 }
 else
