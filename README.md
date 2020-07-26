@@ -36,4 +36,3 @@ composer install
 
 ## ER Diagram for the database
 ![ER Diagram](https://github.com/jijojames18/homework-valuator-backend/blob/master/er/ER-DATABASE.png?raw=true)
-
