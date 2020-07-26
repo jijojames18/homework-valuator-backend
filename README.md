@@ -18,8 +18,16 @@ Copy `.env.example` outside to working directory and reanme to `.env` and config
 • GET /questions/id
 
 #### answers
-• GET /answers/id/userid
 • POST /answers/id/userid
+
+### Environment Variables
+• APP_ENV (development/production)  
+• DB_HOST  
+• DB_NAME  
+• DB_USER  
+• DB_PASSWORD  
+
+If `APP_ENV='production'`, the  `.env` file is ignored and the variables should be set manually using the corresponding methods prescribed by your cloud provider.
 
 ## Project setup
 ```
