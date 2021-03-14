@@ -1,5 +1,5 @@
 # homework-valuator-backend
-The Backend module of the home work valuator project. Developed using PHP, providing REST endpoints which interact with MySQL to perform CRUD operations
+The Backend module of the home work valuator project. Developed using PHP, providing REST endpoints which interact with MySQL to perform CRUD operations.
 
 Front End Repository : [homework-valuator-frontend](https://github.com/jijojames18/homework-valuator-frontend)  
 
